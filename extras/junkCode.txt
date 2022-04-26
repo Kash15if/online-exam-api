@@ -1,0 +1,61 @@
+
+
+---------------------------------------------------------------------------------------------------
+
+
+//code for checking authentication
+const jwttoken = req.headers["x-access-token"];
+
+  if (!jwttoken)
+    return res
+      .status(401)
+      .send({ auth: false, message: "Authentication required." });
+
+  const TokenArray = jwttoken.split(" ");
+  const token = TokenArray[1];
+
+  try {
+    const verified = await jwt.verify(token, "greenwaveauthapiforonlineexams");
+
+    const users = jwt.decode(token);
+
+    // console.log(users.user);
+
+    const out = await pool.query(
+      'SELECT "user", answers, "time" FROM public.answers where "user" = $1;',
+      [users.user]
+    );
+    res.send(out.rows);
+  } catch {
+    return res
+      .status(500)
+      .send({ auth: false, message: "Failed to authenticate token." });
+  }
+
+
+
+  ----------------------------------------------------------------------------------------------------------------------
+
+  Dealing with postgres array datatypes in node js
+
+    update public.answers  set "answers" =ARRAY [ 'A', 'B', 'C', 'D' ] ::text[], "time" = Now() 
+    where "user" =  '1234567890'
+
+    --with node js , 
+    --this is working ->
+    update public.answers  set "answers" =[ 'A', 'B', 'C', 'D' ] ::text[], "time" = Now() where "user" =  '1234567890'
+       
+
+     --for insert  
+    'INSERT INTO test (test_name, test_question, test_choice, test_answer, teacher_email, class_year_content)
+    VALUES ($1, $2, $3,$4,$5, $6) RETURNING *',
+      [name, certificate, question, req.body.choices, answers, email, classe],
+    );
+
+
+
+
+
+
+
+    ----------------------------------------------------------------------------------------------------------
