@@ -45,8 +45,6 @@ router.post("/updateanswer", async (req, res) => {
 
     queryString = queryString.slice(0, -2);
 
-    console.log(queryString);
-
     const out = await pool.request().query(queryString);
 
     res.status = 200;
@@ -173,6 +171,44 @@ router.post("/getresult", async (req, res) => {
 
     res.status(200);
     res.send({ marks: marks, user: users.user, totalMarks: totalMarks });
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(500)
+      .send({ auth: false, message: "Failed to authenticate token." });
+  }
+});
+
+//Check answers and return result
+router.post("/detectuseractivity", async (req, res) => {
+  const jwttoken = req.headers["x-access-token"];
+
+  if (!jwttoken)
+    return res
+      .status(401)
+      .send({ auth: false, message: "Authentication required." });
+
+  const TokenArray = jwttoken.split(" ");
+  const token = TokenArray[1];
+
+  try {
+    const verified = await jwt.verify(token, process.env.AUTHTOKEN);
+
+    const users = jwt.decode(token);
+
+    // console.log(req.body);
+
+    const _userAnswers = await pool
+      .request()
+      .input("userIn", sql.VarChar, users.user)
+      .input("userName", sql.VarChar, req.body.userName)
+      .query(
+        "insert into [OnlineExam].[dbo].[rule_violation_detected] ([user] ,[name] ,[detectedTime]) values (@userIn, @userName, GETDATE())"
+      );
+    const userAnswersArray = _userAnswers.recordset; //getting data from response
+
+    res.status(200);
+    res.send("Rule violation Detected");
   } catch (err) {
     console.log(err);
     return res

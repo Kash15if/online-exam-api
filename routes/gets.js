@@ -8,7 +8,7 @@ const sql = require("mssql");
 
 //api for answers
 
-router.get("/questions/:topic", async (req, res) => {
+router.get("/questions/:topic/:department", async (req, res) => {
   const jwttoken = req.headers["x-access-token"];
 
   if (!jwttoken)
@@ -20,6 +20,7 @@ router.get("/questions/:topic", async (req, res) => {
   const token = TokenArray[1];
 
   const topic = req.params.topic;
+  const department = req.params.department;
   try {
     const verified = await jwt.verify(token, process.env.AUTHTOKEN);
 
@@ -29,8 +30,9 @@ router.get("/questions/:topic", async (req, res) => {
     const out = await pool
       .request()
       .input("qtopicIn", sql.VarChar, topic)
+      .input("deptIn", sql.VarChar, department)
       .query(
-        "SELECT [qno] ,[qtopic] ,[question] ,[option_a] ,[option_b] ,[option_c] ,[option_d] ,[option_e] ,[option_f] ,[option_a_image] ,[option_b_image] ,[option_c_image] ,[option_d_image] ,[option_e_image] ,[option_f_image] ,[question_image] FROM [OnlineExam].[dbo].[Questions]  where qtopic = @qtopicIn"
+        "SELECT [qno] ,[qtopic] ,[question] ,[option_a] ,[option_b] ,[option_c] ,[option_d] ,[option_e] ,[option_f] ,[option_a_image] ,[option_b_image] ,[option_c_image] ,[option_d_image] ,[option_e_image] ,[option_f_image] ,[question_image] FROM [OnlineExam].[dbo].[Questions]  where  department = @deptIn"
       );
 
     res.status(200);

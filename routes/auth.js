@@ -56,7 +56,7 @@ router.post("/login", async (req, res) => {
       .request()
       .input("user1", sql.VarChar, userCreds.user)
       .query(
-        "SELECT  [user] ,[pass] ,[totaltime] FROM  [OnlineExam].[dbo].[users] where [user] = @user1"
+        "SELECT  [user] , [pass] , [totaltime] , [department] , [name] FROM  [OnlineExam].[dbo].[users] where [user] = @user1"
       );
 
     let foundUser = dbData.recordset[0];
@@ -69,6 +69,8 @@ router.post("/login", async (req, res) => {
 
       if (submittedPass === storedPass) {
         let user = foundUser.user;
+        let name = foundUser.name;
+        let department = foundUser.department;
         var token = jwt.sign({ user }, process.env.AUTHTOKEN);
 
         res.status(200);
@@ -76,6 +78,8 @@ router.post("/login", async (req, res) => {
           auth: true,
           token: token,
           user: user,
+          name: name,
+          department: department,
           totaltime: foundUser.totaltime,
         });
       } else {
