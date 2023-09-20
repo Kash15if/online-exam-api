@@ -13,6 +13,7 @@ const dbConfig = {
   password: process.env.PASSWORD,
   server: process.env.HOST,
   database: process.env.DATABASENAME,
+  port: process.env.DB_PORT,
   requestTimeout: 0,
   options: {
     encrypt: false,

@@ -8,7 +8,9 @@ var jwt = require("jsonwebtoken");
 const sql = require("mssql");
 
 //importing db-connection query
-const pool = require("../models/dbCon"); //importing db-pool for query
+const pool = require("../../models/dbCon"); //importing db-pool for query
+
+const { generateToken } = require("../../services/jwtToken");
 
 // router.post("/register", async (req, res) => {
 //   let user = req.body;
@@ -56,7 +58,7 @@ router.post("/login", async (req, res) => {
       .request()
       .input("user1", sql.VarChar, userCreds.user)
       .query(
-        "SELECT  [user] , [pass] , [totaltime] , [department] , [name] FROM  [OnlineExam].[dbo].[users] where [user] = @user1"
+        "SELECT  [user] , [pass] , [totaltime] , [department] , [name] ,[set] FROM  [dbo].[users] where [user] = @user1"
       );
 
     let foundUser = dbData.recordset[0];
@@ -71,7 +73,7 @@ router.post("/login", async (req, res) => {
         let user = foundUser.user;
         let name = foundUser.name;
         let department = foundUser.department;
-        var token = jwt.sign({ user }, process.env.AUTHTOKEN);
+        var token = generateToken({ user: user });
 
         res.status(200);
         res.send({
@@ -81,6 +83,7 @@ router.post("/login", async (req, res) => {
           name: name,
           department: department,
           totaltime: foundUser.totaltime,
+          set: foundUser.set,
         });
       } else {
         res.status(404);

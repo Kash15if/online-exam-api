@@ -2,44 +2,32 @@ const express = require("express");
 const router = express.Router();
 
 let jwt = require("jsonwebtoken"); //import jwt
-const pool = require("../models/dbCon"); //importing db-pool for query
+const pool = require("../../models/dbCon"); //importing db-pool for query
 const sql = require("mssql");
 const { max } = require("pg/lib/defaults");
 
+const { verifyToken, generateToken } = require("../../services/jwtToken");
+
 //update answer api
-router.post("/updateanswer", async (req, res) => {
-  const jwttoken = req.headers["x-access-token"];
-
-  if (!jwttoken)
-    return res
-      .status(401)
-      .send({ auth: false, message: "Authentication required." });
-
-  const TokenArray = jwttoken.split(" ");
-  const token = TokenArray[1];
-
+router.post("/updateanswer", verifyToken, async (req, res) => {
   try {
-    const verified = await jwt.verify(token, process.env.AUTHTOKEN);
-
-    const users = jwt.decode(token);
+    const users = req.payLoad;
 
     const data = req.body;
     const answers = data.answers;
     const user = users.user;
 
-    // answer is an array of string or character here
-    //answers format is [{qno: 1 , answer: 'A'}, ....]
-
     const delResponse = await pool
       .request()
       .input("userIn", sql.VarChar, user)
       .query(
-        " DELETE FROM [OnlineExam].[dbo].[answers] where [user] = @userIn"
+        " DELETE FROM [dbo].[answers] where [user] = @userIn"
       );
 
-    let queryString = `INSERT INTO [OnlineExam].[dbo].[answers] ([user] ,[qno] ,[answer]) values `;
+    let queryString = `INSERT INTO [dbo].[answers] ([user] ,[qno] ,[answer], [date]) values `;
     Object.keys(answers).forEach((qno) => {
-      let tempQuery = "('" + user + "'," + qno + ",'" + answers[qno] + "'), ";
+      let tempQuery =
+        "('" + user + "'," + qno + ",'" + answers[qno] + "' ,GETDATE() ), ";
       queryString += tempQuery;
     });
 
@@ -58,33 +46,18 @@ router.post("/updateanswer", async (req, res) => {
 });
 
 //update timer api
-router.post("/updatetimer", async (req, res) => {
-  const jwttoken = req.headers["x-access-token"];
-
-  if (!jwttoken)
-    return res
-      .status(401)
-      .send({ auth: false, message: "Authentication required." });
-
-  const TokenArray = jwttoken.split(" ");
-  const token = TokenArray[1];
-
+router.post("/updatetimer", verifyToken, async (req, res) => {
   try {
-    const verified = await jwt.verify(token, process.env.AUTHTOKEN);
-
-    const users = jwt.decode(token);
+    const users = req.payLoad;
 
     const data = req.body;
-
     const timeleft = parseInt(data.timeleft);
-
     const user = users.user;
-
     const getTime = await pool
       .request()
       .input("userIn", sql.VarChar, user)
       .query(
-        " select timeleft from  [OnlineExam].[dbo].[usertimer]  where [user] = @userIn"
+        " select timeleft from  [dbo].[usertimer]  where [user] = @userIn"
       );
 
     if (getTime.recordset[0].timeleft < timeleft) {
@@ -96,7 +69,7 @@ router.post("/updatetimer", async (req, res) => {
       .input("timeLeftIn", sql.Int, timeleft)
       .input("userIn", sql.VarChar, user)
       .query(
-        " update [OnlineExam].[dbo].[usertimer]  set [timeleft] = @timeLeftIn where [user] = @userIn"
+        " update [dbo].[usertimer]  set [timeleft] = @timeLeftIn where [user] = @userIn"
       );
 
     res.status = 200;
@@ -110,31 +83,16 @@ router.post("/updatetimer", async (req, res) => {
 });
 
 //Check answers and return result
-router.post("/getresult", async (req, res) => {
-  const jwttoken = req.headers["x-access-token"];
-
-  if (!jwttoken)
-    return res
-      .status(401)
-      .send({ auth: false, message: "Authentication required." });
-
-  const TokenArray = jwttoken.split(" ");
-  const token = TokenArray[1];
-
+router.post("/getresult", verifyToken, async (req, res) => {
   try {
-    const verified = await jwt.verify(token, process.env.AUTHTOKEN);
-
-    const users = jwt.decode(token);
-
+    const users = req.payLoad;
     const department = req.body.department;
-
-    // console.log(req.body);
 
     const _userAnswers = await pool
       .request()
       .input("userIn", sql.VarChar, users.user)
       .query(
-        "SELECT [qno] ,[answer] FROM [OnlineExam].[dbo].[answers] where [user] = @userIn"
+        "SELECT [qno] ,[answer] FROM [dbo].[answers] where [user] = @userIn"
       );
     const userAnswersArray = _userAnswers.recordset; //getting data from response
 
@@ -142,7 +100,7 @@ router.post("/getresult", async (req, res) => {
       .request()
       .input("deptIn", sql.VarChar, department)
       .query(
-        "SELECT  [qno] , [answer] FROM [OnlineExam].[dbo].[Questions]   where [department] = @deptIn order by [qno]"
+        "SELECT  [qno] , [answer] FROM [dbo].[Questions]   where [department] = @deptIn order by [qno]"
       );
 
     const correctAnswersArray = _actualAnswers.recordset; //getting data from response
@@ -180,30 +138,17 @@ router.post("/getresult", async (req, res) => {
 });
 
 //Check answers and return result
-router.post("/detectuseractivity", async (req, res) => {
-  const jwttoken = req.headers["x-access-token"];
-
-  if (!jwttoken)
-    return res
-      .status(401)
-      .send({ auth: false, message: "Authentication required." });
-
-  const TokenArray = jwttoken.split(" ");
-  const token = TokenArray[1];
-
+router.post("/detectuseractivity", verifyToken, async (req, res) => {
+  
   try {
-    const verified = await jwt.verify(token, process.env.AUTHTOKEN);
-
-    const users = jwt.decode(token);
-
-    // console.log(req.body);
+    const users = req.payLaod;
 
     const _userAnswers = await pool
       .request()
       .input("userIn", sql.VarChar, users.user)
       .input("userName", sql.VarChar, req.body.userName)
       .query(
-        "insert into [OnlineExam].[dbo].[rule_violation_detected] ([user] ,[name] ,[detectedTime]) values (@userIn, @userName, GETDATE())"
+        "insert into [dbo].[rule_violation_detected] ([user] ,[name] ,[detectedTime]) values (@userIn, @userName, GETDATE())"
       );
     const userAnswersArray = _userAnswers.recordset; //getting data from response
 
@@ -215,6 +160,8 @@ router.post("/detectuseractivity", async (req, res) => {
       .status(500)
       .send({ auth: false, message: "Failed to authenticate token." });
   }
+
+  res.send("tested");
 });
 
 module.exports = router;

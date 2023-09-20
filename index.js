@@ -33,11 +33,11 @@ const corsOptions = {
 
 app.use(cors({ origin: "*" }));
 
-const AllGetROutes = require("./routes/gets");
-const AllPostRoutes = require("./routes/posts");
-const AuthRoutes = require("./routes/auth");
+const AllGetROutes = require("./routes/users/gets");
+const AllPostRoutes = require("./routes/users/posts");
+const AuthRoutes = require("./routes/users/auth");
 app.use("/get", AllGetROutes);
 app.use("/post", AllPostRoutes);
 app.use("/auth", AuthRoutes);
 
-app.listen(5000);
+app.listen(8081);
