@@ -3,7 +3,7 @@ var jwt = require("jsonwebtoken");
 const verifyToken = async (req, res, next) => {
   const jwttoken = req.headers["x-access-token"];
 
-  if (!jwttoken)
+  if (!jwttoken || jwttoken === "Bearer null")
     return res
       .status(401)
       .send({ auth: false, message: "Authentication required." });
@@ -13,6 +13,7 @@ const verifyToken = async (req, res, next) => {
 
   try {
     const decoded = await jwt.verify(token, process.env.AUTHTOKEN);
+
     req.payLoad = decoded;
   } catch (err) {
     console.log(err);

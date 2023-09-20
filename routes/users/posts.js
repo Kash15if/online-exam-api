@@ -20,9 +20,7 @@ router.post("/updateanswer", verifyToken, async (req, res) => {
     const delResponse = await pool
       .request()
       .input("userIn", sql.VarChar, user)
-      .query(
-        " DELETE FROM [dbo].[answers] where [user] = @userIn"
-      );
+      .query(" DELETE FROM [dbo].[answers] where [user] = @userIn");
 
     let queryString = `INSERT INTO [dbo].[answers] ([user] ,[qno] ,[answer], [date]) values `;
     Object.keys(answers).forEach((qno) => {
@@ -139,9 +137,8 @@ router.post("/getresult", verifyToken, async (req, res) => {
 
 //Check answers and return result
 router.post("/detectuseractivity", verifyToken, async (req, res) => {
-  
   try {
-    const users = req.payLaod;
+    const users = req.payLoad;
 
     const _userAnswers = await pool
       .request()
@@ -150,9 +147,9 @@ router.post("/detectuseractivity", verifyToken, async (req, res) => {
       .query(
         "insert into [dbo].[rule_violation_detected] ([user] ,[name] ,[detectedTime]) values (@userIn, @userName, GETDATE())"
       );
-    const userAnswersArray = _userAnswers.recordset; //getting data from response
+    // const userAnswersArray = _userAnswers.recordset; //getting data from response
 
-    res.status(200);
+    // res.status(200);
     res.send("Rule violation Detected");
   } catch (err) {
     console.log(err);
@@ -160,8 +157,6 @@ router.post("/detectuseractivity", verifyToken, async (req, res) => {
       .status(500)
       .send({ auth: false, message: "Failed to authenticate token." });
   }
-
-  res.send("tested");
 });
 
 module.exports = router;
