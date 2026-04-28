@@ -1,4 +1,4 @@
-require("dotenv").config();
+require('dotenv').config();
 
 // const dbConfig = {
 //   user: process.env.USER,
@@ -18,8 +18,8 @@ const dbConfig = {
   options: {
     encrypt: false,
     enableArithAbort: true,
-    trustServerCertificate: false,
-  },
+    trustServerCertificate: false
+  }
 };
 
 module.exports = dbConfig;

@@ -1,17 +1,17 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
 
-let jwt = require("jsonwebtoken"); //import jwt
-const { user } = require("../../config");
-const pool = require("../../models/dbCon"); //importing db-pool for query
-const sql = require("mssql");
+const jwt = require('jsonwebtoken'); //import jwt
+const { user } = require('../../config');
+const pool = require('../../models/dbCon'); //importing db-pool for query
+const sql = require('mssql');
 
-const { verifyToken } = require("../../services/jwtToken");
+const { verifyToken } = require('../../services/jwtToken');
 
 //api for answers
 
 router.get(
-  "/questions/:topic/:department/:set",
+  '/questions/:topic/:department/:set',
   verifyToken,
   async (req, res) => {
     const topic = req.params.topic;
@@ -23,11 +23,11 @@ router.get(
       //qtopicIn
       const out = await pool
         .request()
-        .input("qtopicIn", sql.VarChar, topic)
-        .input("deptIn", sql.VarChar, department)
-        .input("setIn", sql.VarChar, set)
+        .input('qtopicIn', sql.VarChar, topic)
+        .input('deptIn', sql.VarChar, department)
+        .input('setIn', sql.VarChar, set)
         .query(
-          "SELECT [SetQNo], questionsList.[qno] ,[qtopic] ,[question] ,[option_a] ,[option_b] ,[option_c] ,[option_d] ,[option_e] ,[option_f] ,[option_a_image] ,[option_b_image] ,[option_c_image] ,[option_d_image] , [option_e_image] ,[option_f_image] ,[question_image] FROM [dbo].[Set_QNo_Mapping] as setQ_Mapping left join [dbo].[Questions] as questionsList on setQ_Mapping.[QNo] = questionsList.[qno] and setQ_Mapping.Department = questionsList.department where setQ_Mapping.[Set] = @setIn AND setQ_Mapping.Department = @deptIn order by SetQNo"
+          'SELECT [SetQNo], questionsList.[qno] ,[qtopic] ,[question] ,[option_a] ,[option_b] ,[option_c] ,[option_d] ,[option_e] ,[option_f] ,[option_a_image] ,[option_b_image] ,[option_c_image] ,[option_d_image] , [option_e_image] ,[option_f_image] ,[question_image] FROM [dbo].[Set_QNo_Mapping] as setQ_Mapping left join [dbo].[Questions] as questionsList on setQ_Mapping.[QNo] = questionsList.[qno] and setQ_Mapping.Department = questionsList.department where setQ_Mapping.[Set] = @setIn AND setQ_Mapping.Department = @deptIn order by SetQNo'
         );
 
       res.status(200);
@@ -35,19 +35,19 @@ router.get(
     } catch {
       return res
         .status(500)
-        .send({ auth: false, message: "Failed to authenticate token." });
+        .send({ auth: false, message: 'Failed to authenticate token.' });
     }
   }
 );
 
-router.get("/answers", verifyToken, async (req, res) => {
+router.get('/answers', verifyToken, async (req, res) => {
   try {
     const users = req.payLoad;
     const out = await pool
       .request()
-      .input("userIn", sql.VarChar, users.user)
+      .input('userIn', sql.VarChar, users.user)
       .query(
-        "SELECT [user] ,[qno] ,[answer] FROM [dbo].[answers] where [user] = @userIn"
+        'SELECT [user] ,[qno] ,[answer] FROM [dbo].[answers] where [user] = @userIn'
       );
 
     const resObjWithQno = {};
@@ -61,19 +61,19 @@ router.get("/answers", verifyToken, async (req, res) => {
   } catch {
     return res
       .status(500)
-      .send({ auth: false, message: "Failed to authenticate token." });
+      .send({ auth: false, message: 'Failed to authenticate token.' });
   }
 });
 
 //get api for timeleft
-router.get("/timeleft", verifyToken, async (req, res) => {
+router.get('/timeleft', verifyToken, async (req, res) => {
   try {
     const users = req.payLoad;
     const out = await pool
       .request()
-      .input("userIn", sql.VarChar, users.user)
+      .input('userIn', sql.VarChar, users.user)
       .query(
-        "SELECT TOP (1000) [user] ,[timeleft] FROM [dbo].[usertimer] where [user] = @userIn"
+        'SELECT TOP (1000) [user] ,[timeleft] FROM [dbo].[usertimer] where [user] = @userIn'
       );
 
     res.status(200);
@@ -81,19 +81,19 @@ router.get("/timeleft", verifyToken, async (req, res) => {
   } catch {
     return res
       .status(500)
-      .send({ auth: false, message: "Failed to authenticate token." });
+      .send({ auth: false, message: 'Failed to authenticate token.' });
   }
 });
 
-router.get("/getanswers", verifyToken, async (req, res) => {
+router.get('/getanswers', verifyToken, async (req, res) => {
   try {
     const users = jwt.payLoad;
 
     const out = await pool
       .request()
-      .input("userIn", sql.VarChar, users.user)
+      .input('userIn', sql.VarChar, users.user)
       .query(
-        "SELECT [qno] , [answer] FROM [dbo].[Questions]  where [user] = @userIn"
+        'SELECT [qno] , [answer] FROM [dbo].[Questions]  where [user] = @userIn'
       );
 
     res.status(200);
@@ -101,12 +101,12 @@ router.get("/getanswers", verifyToken, async (req, res) => {
   } catch {
     return res
       .status(500)
-      .send({ auth: false, message: "Failed to authenticate token." });
+      .send({ auth: false, message: 'Failed to authenticate token.' });
   }
 });
 
 //testing jwt
-router.get("/abc", verifyToken, async (req, res) => {
+router.get('/abc', verifyToken, async (req, res) => {
   try {
     const users = req.payLoad;
 
@@ -115,7 +115,7 @@ router.get("/abc", verifyToken, async (req, res) => {
   } catch {
     return res
       .status(500)
-      .send({ auth: false, message: "Failed to authenticate token." });
+      .send({ auth: false, message: 'Failed to authenticate token.' });
   }
 });
 
@@ -148,13 +148,13 @@ router.get("/abc", verifyToken, async (req, res) => {
 //       .send({ auth: false, message: "Failed to authenticate token." });
 //   }
 
-router.get("/testing", verifyToken, async (req, res) => {
+router.get('/testing', verifyToken, async (req, res) => {
   try {
     const dataSet = await pool
       .request()
-      .input("input_parameter", sql.VarChar, "1234567890")
+      .input('input_parameter', sql.VarChar, '1234567890')
       .query(
-        "SELECT  [user] ,[pass] ,[totaltime] FROM  [dbo].[users] where [user] = @input_parameter"
+        'SELECT  [user] ,[pass] ,[totaltime] FROM  [dbo].[users] where [user] = @input_parameter'
       );
 
     res.send(dataSet.recordsets);

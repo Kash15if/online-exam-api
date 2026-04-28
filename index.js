@@ -1,7 +1,7 @@
-const express = require("express");
+const express = require('express');
 const app = express();
-const bodyParser = require("body-parser");
-require("dotenv").config();
+const bodyParser = require('body-parser');
+require('dotenv').config();
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -9,35 +9,33 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 //importing db-connection query
-const pool = require("./models/dbCon");
+const pool = require('./models/dbCon');
 pool
   .connect()
   .then((row) => {
-    console.log("db is connected :", row._connected);
+    console.warn('db is connected :', row._connected);
   })
   .catch((err) => {
     throw err;
   });
 
 //for cors error
-const cors = require("cors");
+const cors = require('cors');
 const corsOptions = {
-  origin: "*",
-
+  origin: '*',
   credentials: true,
+  methods: ['GET', 'POST']
 
-  methods: ["GET", "POST"],
-
-  allowedHeaders: ["Content-Type", "Access-Control-Allow-Headers"],
+  allowedHeaders: ['Content-Type', 'Access-Control-Allow-Headers']
 };
 
-app.use(cors({ origin: "*" }));
+app.use(cors({ origin: '*' }));
 
-const AllGetROutes = require("./routes/users/gets");
-const AllPostRoutes = require("./routes/users/posts");
-const AuthRoutes = require("./routes/users/auth");
-app.use("/get", AllGetROutes);
-app.use("/post", AllPostRoutes);
-app.use("/auth", AuthRoutes);
+const AllGetROutes = require('./routes/users/gets');
+const AllPostRoutes = require('./routes/users/posts');
+const AuthRoutes = require('./routes/users/auth');
+app.use('/get', AllGetROutes);
+app.use('/post', AllPostRoutes);
+app.use('/auth', AuthRoutes);
 
 app.listen(8081);

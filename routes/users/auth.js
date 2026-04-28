@@ -1,16 +1,16 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
 
-const bcrypt = require("bcrypt");
+const bcrypt = require('bcrypt');
 
-var jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken');
 
-const sql = require("mssql");
+const sql = require('mssql');
 
 //importing db-connection query
-const pool = require("../../models/dbCon"); //importing db-pool for query
+const pool = require('../../models/dbCon'); //importing db-pool for query
 
-const { generateToken } = require("../../services/jwtToken");
+const { generateToken } = require('../../services/jwtToken');
 
 // router.post("/register", async (req, res) => {
 //   let user = req.body;
@@ -50,30 +50,30 @@ const { generateToken } = require("../../services/jwtToken");
 //   }
 // });
 
-router.post("/login", async (req, res) => {
-  let userCreds = req.body.user;
+router.post('/login', async (req, res) => {
+  const userCreds = req.body.user;
 
   try {
-    let dbData = await pool
+    const dbData = await pool
       .request()
-      .input("user1", sql.VarChar, userCreds.user)
+      .input('user1', sql.VarChar, userCreds.user)
       .query(
-        "SELECT  [user] , [pass] , [totaltime] , [department] , [name] ,[set] FROM  [dbo].[users] where [user] = @user1"
+        'SELECT  [user] , [pass] , [totaltime] , [department] , [name] ,[set] FROM  [dbo].[users] where [user] = @user1'
       );
 
-    let foundUser = dbData.recordset[0];
+    const foundUser = dbData.recordset[0];
 
     if (foundUser) {
-      let submittedPass = userCreds.password;
-      let storedPass = foundUser.pass;
+      const submittedPass = userCreds.password;
+      const storedPass = foundUser.pass;
 
       // const passwordMatch = await bcrypt.compare(submittedPass, storedPass);
 
       if (submittedPass === storedPass) {
-        let user = foundUser.user;
-        let name = foundUser.name;
-        let department = foundUser.department;
-        var token = generateToken({ user: user });
+        const user = foundUser.user;
+        const name = foundUser.name;
+        const department = foundUser.department;
+        const token = generateToken({ user: user });
 
         res.status(200);
         res.send({
@@ -83,23 +83,23 @@ router.post("/login", async (req, res) => {
           name: name,
           department: department,
           totaltime: foundUser.totaltime,
-          set: foundUser.set,
+          set: foundUser.set
         });
       } else {
         res.status(404);
-        res.send("Wrong Password, Type correct password and login again");
+        res.send('Wrong Password, Type correct password and login again');
       }
     } else {
       // let fakePass = `$2b$$10$ifgfgfgfgfgfgfggfgfgfggggfgfgfga`;
       // await bcrypt.compare(req.body.password, fakePass);
 
       res.status(404);
-      res.send("No Such user exists");
+      res.send('No Such user exists');
     }
   } catch (error) {
     console.log(error);
     res.status(405);
-    res.send("Internal server error");
+    res.send('Internal server error');
   }
 });
 

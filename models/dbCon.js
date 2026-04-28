@@ -1,6 +1,6 @@
-const sql = require("mssql");
+const sql = require('mssql');
 
-const dbConfig = require("../config");
+const dbConfig = require('../config');
 
 // new pool creation using environment variable
 
