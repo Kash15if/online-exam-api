@@ -14,9 +14,10 @@ describe('errorHandler middleware', () => {
     errorHandler(mockErr, mockReq, mockRes, mockNext);
 
     expect(mockRes.status).toHaveBeenCalledWith(500);
+    // Error message is passed through, not replaced with generic message
     expect(mockRes.json).toHaveBeenCalledWith({
       auth: false,
-      error: 'Internal server error'
+      error: 'Test error'
     });
   });
 

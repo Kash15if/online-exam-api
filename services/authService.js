@@ -1,6 +1,8 @@
 const { generateToken } = require('../services/tokenService');
 
 const users = new Map();
+
+// Add default test user
 users.set('test@example.com', {
   id: '1',
   email: 'test@example.com',
@@ -43,7 +45,18 @@ const authService = {
     // eslint-disable-next-line no-unused-vars
     const { password, ...safeUser } = user;
     return safeUser;
+  },
+
+  _reset: () => {
+    users.clear();
+    users.set('test@example.com', {
+      id: '1',
+      email: 'test@example.com',
+      password: 'hashedpass123',
+      role: 'student'
+    });
   }
 };
 
 module.exports = authService;
+

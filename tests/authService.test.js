@@ -1,9 +1,19 @@
 const authService = require('../services/authService');
 
 describe('authService', () => {
+  const originalEnv = { JWT_SECRET: process.env.JWT_SECRET, AUTHTOKEN: process.env.AUTHTOKEN };
+
+  beforeAll(() => {
+    process.env.JWT_SECRET = 'test-secret-key';
+  });
+
+  afterAll(() => {
+    process.env.JWT_SECRET = originalEnv.JWT_SECRET;
+    process.env.AUTHTOKEN = originalEnv.AUTHTOKEN;
+  });
+
   beforeEach(() => {
-    // Reset users map by clearing it
-    authService.__resetForTesting?.();
+    authService._reset?.();
   });
 
   describe('register', () => {

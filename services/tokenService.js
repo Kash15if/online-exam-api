@@ -1,16 +1,18 @@
 const jwt = require('jsonwebtoken');
 
-const SECRET = process.env.JWT_SECRET || process.env.AUTHTOKEN;
+const getSecret = () => process.env.JWT_SECRET || process.env.AUTHTOKEN;
 
 const generateToken = (payload = {}, options = {}) => {
-  if (!SECRET) throw new Error('JWT secret not configured (set JWT_SECRET or AUTHTOKEN)');
+  const secret = getSecret();
+  if (!secret) throw new Error('JWT secret not configured (set JWT_SECRET or AUTHTOKEN)');
   const signOptions = Object.assign({ expiresIn: process.env.JWT_EXPIRES_IN || '24h' }, options);
-  return jwt.sign({ ...payload, iat: Math.floor(Date.now() / 1000) }, SECRET, signOptions);
+  return jwt.sign({ ...payload, iat: Math.floor(Date.now() / 1000) }, secret, signOptions);
 };
 
 const verifyToken = (token) => {
-  if (!SECRET) throw new Error('JWT secret not configured (set JWT_SECRET or AUTHTOKEN)');
-  return jwt.verify(token, SECRET);
+  const secret = getSecret();
+  if (!secret) throw new Error('JWT secret not configured (set JWT_SECRET or AUTHTOKEN)');
+  return jwt.verify(token, secret);
 };
 
 const extractToken = (req) => {

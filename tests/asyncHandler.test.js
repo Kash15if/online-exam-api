@@ -30,9 +30,9 @@ describe('asyncHandler middleware', () => {
     const mockNext = jest.fn();
     const syncError = new Error('Sync error');
 
-    const syncFn = jest.fn().mockImplementation(() => {
+    const syncFn = async () => {
       throw syncError;
-    });
+    };
     const handler = asyncHandler(syncFn);
 
     await handler({}, {}, mockNext);
