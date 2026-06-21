@@ -1,7 +1,3 @@
-node_modules/
-coverage/
-config.js
-index.js
-models/
-routes/users/
-extras/
+node_modules
+coverage
+*.config.js

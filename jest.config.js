@@ -1,12 +1,16 @@
+'use strict';
+
 module.exports = {
   testEnvironment: 'node',
-  coverageDirectory: './coverage',
+  rootDir: '.',
+  testMatch: ['<rootDir>/tests/**/*.test.js'],
   collectCoverageFrom: [
-    'controllers/**/*.js',
-    'services/**/*.js',
-    'middleware/**/*.js',
-    '!node_modules/**'
+    'src/**/*.js',
+    '!src/utils/seed.js',
+    '!src/config/logger.js',
   ],
-  testMatch: ['**/__tests__/**/*.js', '**/tests/**/*.js'],
-  verbose: true
+  coverageDirectory: './coverage',
+  setupFiles: ['<rootDir>/tests/setupEnv.js'],
+  verbose: true,
+  testPathIgnorePatterns: ['/node_modules/'],
 };

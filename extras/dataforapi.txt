@@ -1,4 +1,0 @@
-Api Auth :- Header :- x-access-token : Bearer  Token
-        Body : {}
-
-        
